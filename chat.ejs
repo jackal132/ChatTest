@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width:100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #message {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #message li {
+            padding: 5px 10px;
+        }
+
+        #message  li:nth-child(odd){
+            background: #eee;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <select name="" id="">
+        <option value="Room1">Room1</option>
+        <option value="Room2">Room2</option>
+    </select>
+    <ul id="message"></ul>
+    <form action="">
+        <input type="text" id="m" autocomplete="off">
+        <button>Send</button>
+    </form>
+    <script>
+        $(() => {
+            const name = prompt('What your name');
+            const socket = io();
+            let room = ['room1', 'room2'];
+            let num = 0;
+
+            socket.emit('joinRoom', num, name);
+
+            $('select').change(() => {
+                socket.emit('leaveRoom', num, name);
+                num++;
+                num = num % 2;
+                socket.emit('joinRoom', num, name);
+            });
+
+            $('form').submit(() => {
+                socket.emit('chat message', num, name, $('#m').val());
+                $('#m').val('');
+                return false;
+            });
+
+            socket.on('chat message', (name, msg) => {
+                $('#message').append($('<li>').text(name + ' : ' + msg));
+            });
+
+            socket.on('leaveRoom', (name, msg) => {
+                $('#message').append($('<li>').text(name + ' leaved ' + room[num]));
+            });
+
+            socket.on('joinRoom', (name, msg) => {
+                $('#message').append($('<li>').text(name + ' joinded ' + room[num]));
+            });
+        });
+    </script>
+</body>
+</html>

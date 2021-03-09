@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box;}
+        body { font: 13px; }
+        form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%;}
+        form input { border: 0; padding: 10px; width: 90%; margin-right: .5%;}
+        form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+        #message { list-style-type: none; margin: 0; padding: 0;}
+        #message li { padding: 5px 10px;}
+        #message li:nth-child(odd) { background: #eee;}
+
+    </style>
+</head>
+<body>
+    <ul id="message"></ul>
+    <form action="">
+        <input id="m" autocomplete="off"><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+    <script>
+        $(() => {
+            // 소켓을 연결해주는 구문
+            // 이때 index.js의 io.on('connection')이벤트가 발생
+            const socket = io();
+
+            $('form').submit(() => {
+                // 여기로 전달하면 socket.on 으로 받음
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+            });
+
+            socket.on('chat message', (msg) => {
+                $('#message').append($('<li>').text(msg));
+            });
+        });
+    </script>
+</body>
+</html>
